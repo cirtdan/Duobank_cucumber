@@ -7,12 +7,13 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import utilities.DBUtility;
 import utilities.Driver;
+import static io.restassured.RestAssured.*;
 
 import java.util.concurrent.TimeUnit;
 
 public class Hooks {
 
-    @Before    //@Before ("not @db")
+    @Before ("not @api")
     public void setupScenario(){
         Driver.getDriver().manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
         Driver.getDriver().manage().deleteAllCookies();
@@ -20,9 +21,17 @@ public class Hooks {
 
 
     }
+    @Before ("@api")
+    public void setupAPI(){
+
+        baseURI = "http://duobank-env.eba-hjmrxg9a.us-east-2.elasticbeanstalk.com/api";
+
+
+    }
 
     @Before ("@db")
     public void setupDb(){
+
         DBUtility.createConnection();
     }
 
@@ -32,7 +41,7 @@ public class Hooks {
     }
 
 
-    @After
+    @After ("not @api")
     public void tearDownScenario(Scenario scenario){
          if(scenario.isFailed()){
              byte[] screenshotAs = ((TakesScreenshot) Driver.getDriver()).getScreenshotAs(OutputType.BYTES);
